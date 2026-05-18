@@ -20,6 +20,9 @@
         <button class="icon-btn" id="themeBtn" aria-label="Toggle theme">
           <i data-lucide="moon"></i>
         </button>
+        <button class="icon-btn" id="settingsBtn" aria-label="Settings">
+          <i data-lucide="settings"></i>
+        </button>
         <button class="icon-btn" id="logoutBtn" aria-label="Sign out">
           <i data-lucide="log-out"></i>
         </button>
@@ -143,8 +146,9 @@
           <button class="filter-chip active" data-filter="all">All</button>
           <button class="filter-chip" data-filter="Learning"><i data-lucide="book-open"></i> Learning</button>
           <button class="filter-chip" data-filter="Mastered"><i data-lucide="circle-check"></i> Mastered</button>
-          <button class="filter-chip" data-filter="tag:Business"><i data-lucide="briefcase"></i> Business</button>
           <button class="filter-chip" data-filter="toeic-high"><i data-lucide="star"></i> TOEIC High</button>
+          <span class="filter-divider" data-tag-divider hidden></span>
+          <!-- dynamic tag chips inserted here at runtime -->
         </div>
 
         <div class="loading-state" id="libraryLoading" hidden>
@@ -369,6 +373,86 @@
           </button>
         </div>
       </section>
+
+      <!-- ========== SETTINGS PAGE ========== -->
+      <section class="page" data-page="settings" hidden>
+        <div class="page-title">
+          <div class="title-icon"><i data-lucide="settings"></i></div>
+          <div>
+            <h2>Settings</h2>
+            <p class="page-subtitle">Manage your account and preferences</p>
+          </div>
+        </div>
+
+        <!-- Profile -->
+        <div class="card settings-section">
+          <div class="settings-section-header">
+            <i data-lucide="user-round"></i>
+            <h3>Profile</h3>
+          </div>
+          <div class="settings-row">
+            <span class="settings-label">Email</span>
+            <span class="settings-value" id="set-email">—</span>
+          </div>
+          <div class="settings-row">
+            <span class="settings-label">Member since</span>
+            <span class="settings-value" id="set-joined">—</span>
+          </div>
+        </div>
+
+        <!-- Daily goal -->
+        <form class="card settings-section" id="goalForm" onsubmit="return false;">
+          <div class="settings-section-header">
+            <i data-lucide="target"></i>
+            <h3>Daily Review Goal</h3>
+          </div>
+          <p class="settings-desc">จำนวนคำที่ต้องการทบทวนต่อวัน (ใช้แสดงบน Dashboard)</p>
+          <div class="field">
+            <label for="set-goal">Reviews per day</label>
+            <input type="number" id="set-goal" min="1" max="500" value="30" />
+          </div>
+          <div class="settings-actions">
+            <button type="submit" class="btn btn-primary" id="saveGoalBtn">
+              <i data-lucide="save"></i> Save Goal
+            </button>
+          </div>
+        </form>
+
+        <!-- Change password -->
+        <form class="card settings-section" id="passwordForm" onsubmit="return false;">
+          <div class="settings-section-header">
+            <i data-lucide="key-round"></i>
+            <h3>Change Password</h3>
+          </div>
+          <div class="field">
+            <label for="set-new-password">New Password</label>
+            <input type="password" id="set-new-password" placeholder="อย่างน้อย 6 ตัวอักษร" minlength="6" autocomplete="new-password" />
+          </div>
+          <div class="field">
+            <label for="set-confirm-password">Confirm New Password</label>
+            <input type="password" id="set-confirm-password" placeholder="ใส่รหัสผ่านอีกครั้ง" minlength="6" autocomplete="new-password" />
+          </div>
+          <div class="settings-actions">
+            <button type="submit" class="btn btn-primary" id="savePasswordBtn">
+              <i data-lucide="shield-check"></i> Update Password
+            </button>
+          </div>
+        </form>
+
+        <!-- Sign out (danger zone) -->
+        <div class="card settings-section">
+          <div class="settings-section-header">
+            <i data-lucide="log-out"></i>
+            <h3>Sign Out</h3>
+          </div>
+          <p class="settings-desc">ออกจากระบบในอุปกรณ์นี้ — ข้อมูลของคุณจะยังคงปลอดภัยใน Supabase</p>
+          <div class="settings-actions">
+            <button type="button" class="btn btn-danger" id="signOutBtn">
+              <i data-lucide="log-out"></i> Sign Out
+            </button>
+          </div>
+        </div>
+      </section>
     </main>
 
     <nav class="bottom-nav">
@@ -387,6 +471,16 @@
       <button class="nav-item" data-nav="game">
         <i data-lucide="gamepad-2"></i><span>Game</span>
       </button>
+
+      <div class="sidebar-user" id="sidebarUser">
+        <div class="sidebar-user-avatar" id="userAvatar">?</div>
+        <div class="sidebar-user-meta">
+          <div class="sidebar-user-email" id="userEmail">—</div>
+          <div class="sidebar-user-status">
+            <span class="status-dot"></span>Signed in
+          </div>
+        </div>
+      </div>
     </nav>
   </div>
 

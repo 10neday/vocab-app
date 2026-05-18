@@ -134,6 +134,17 @@ const api = {
     return data;
   },
 
+  // ดึง tag ทั้งหมดของ user (unique, sorted)
+  async listAllTags() {
+    const { data, error } = await supabaseClient.from('words').select('tags');
+    if (error) throw error;
+    const set = new Set();
+    for (const row of data || []) {
+      for (const t of row.tags || []) if (t) set.add(t);
+    }
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  },
+
   // ดึงคำที่ต้องดูแลเป็นพิเศษ (ตอบผิดบ่อย / overdue)
   async listAttention(limit = 3) {
     const { data, error } = await supabaseClient

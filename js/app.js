@@ -18,6 +18,14 @@ function renderIcons(scope) {
   currentUser = await requireAuth();
   if (!currentUser) return;
   console.log('Logged in as:', currentUser.email);
+  // Sidebar user info (desktop)
+  const emailEl = document.getElementById('userEmail');
+  const avatarEl = document.getElementById('userAvatar');
+  if (emailEl && currentUser.email) {
+    emailEl.textContent = currentUser.email;
+    emailEl.title = currentUser.email;
+    avatarEl.textContent = currentUser.email[0].toUpperCase();
+  }
   renderIcons();
   initTheme();
   showPage('library');
@@ -73,11 +81,13 @@ function showPage(name) {
   if (name === 'review') startReview();
   if (name === 'game') startGame();
   if (name === 'add') resetAddForm();
+  if (name === 'settings') renderSettings();
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
 document.querySelectorAll('[data-nav]').forEach((btn) => {
   btn.addEventListener('click', () => showPage(btn.dataset.nav));
 });
+document.getElementById('settingsBtn').addEventListener('click', () => showPage('settings'));
 
 // ----------------------------------------------------------------
 // TOAST
@@ -252,14 +262,40 @@ document.getElementById('searchInput').addEventListener('input', (e) => {
   searchTimeout = setTimeout(renderLibrary, 250);
 });
 
-document.querySelectorAll('#filterChips .filter-chip').forEach((chip) => {
-  chip.addEventListener('click', () => {
-    document.querySelectorAll('#filterChips .filter-chip').forEach((c) => c.classList.remove('active'));
-    chip.classList.add('active');
-    libFilter = chip.dataset.filter;
-    renderLibrary();
-  });
+// Event delegation — รองรับ chips ที่เพิ่มทีหลังแบบ dynamic (tag chips)
+document.getElementById('filterChips').addEventListener('click', (e) => {
+  const chip = e.target.closest('.filter-chip');
+  if (!chip) return;
+  document.querySelectorAll('#filterChips .filter-chip').forEach((c) => c.classList.remove('active'));
+  chip.classList.add('active');
+  libFilter = chip.dataset.filter;
+  renderLibrary();
 });
+
+async function renderTagChips() {
+  try {
+    const tags = await api.listAllTags();
+    const container = document.getElementById('filterChips');
+    const divider = container.querySelector('[data-tag-divider]');
+    // ลบ tag chips เก่าออก (รักษา chip ระบบ + divider)
+    container.querySelectorAll('[data-tag-chip]').forEach((el) => el.remove());
+    if (tags.length === 0) { divider.hidden = true; return; }
+    divider.hidden = false;
+    for (const tag of tags) {
+      const btn = document.createElement('button');
+      btn.className = 'filter-chip';
+      btn.dataset.filter = `tag:${tag}`;
+      btn.dataset.tagChip = '';
+      btn.innerHTML = `<i data-lucide="tag"></i> ${escapeHtml(tag)}`;
+      // ถ้า filter ปัจจุบันคือ tag นี้ ให้ active ต่อหลัง re-render
+      if (libFilter === `tag:${tag}`) btn.classList.add('active');
+      container.appendChild(btn);
+    }
+    renderIcons(container);
+  } catch (e) {
+    console.warn('renderTagChips failed', e);
+  }
+}
 
 function statusForUI(w) {
   if (w.next_review && new Date(w.next_review) < new Date() && w.status !== 'Mastered') return 'Review';
@@ -284,6 +320,9 @@ async function renderLibrary() {
   loading.hidden = false;
   empty.hidden = true;
   container.innerHTML = '';
+
+  // Refresh dynamic tag chips ตามคำที่มีจริง (ไม่รอ await — render parallel กับ word list)
+  renderTagChips();
 
   try {
     const list = await api.listWords({ search: libSearch, filter: libFilter });
@@ -479,7 +518,7 @@ async function renderDashboard() {
       .join('');
 
     // Ring + streak
-    const goal = 30;
+    const goal = getDailyGoal();
     const reviewsToday = stats?.reviews_today || 0;
     drawRing('ringChart', reviewsToday, goal);
     document.getElementById('ring-done').textContent = reviewsToday;
@@ -750,3 +789,82 @@ function nextGameQuestion() {
     startGame();
   }
 }
+
+// ================================================================
+// SETTINGS PAGE
+// ================================================================
+function getDailyGoal() {
+  const v = currentUser?.user_metadata?.daily_goal;
+  return Number.isFinite(+v) && +v > 0 ? +v : 30;
+}
+
+function renderSettings() {
+  // Profile
+  document.getElementById('set-email').textContent = currentUser.email || '—';
+  const created = currentUser.created_at ? new Date(currentUser.created_at) : null;
+  document.getElementById('set-joined').textContent = created
+    ? created.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' })
+    : '—';
+  // Daily goal current value
+  document.getElementById('set-goal').value = getDailyGoal();
+  // Reset password fields
+  document.getElementById('set-new-password').value = '';
+  document.getElementById('set-confirm-password').value = '';
+}
+
+// Save daily goal
+document.getElementById('saveGoalBtn').addEventListener('click', async () => {
+  const input = document.getElementById('set-goal');
+  const goal = parseInt(input.value, 10);
+  if (!Number.isFinite(goal) || goal < 1 || goal > 500) {
+    toast('กรุณาใส่ตัวเลข 1–500', 'circle-alert');
+    return;
+  }
+  const btn = document.getElementById('saveGoalBtn');
+  btn.disabled = true;
+  try {
+    const { data, error } = await supabaseClient.auth.updateUser({ data: { daily_goal: goal } });
+    if (error) throw error;
+    currentUser = data.user; // refresh local copy
+    toast('บันทึก Daily Goal แล้ว', 'check-circle');
+  } catch (e) {
+    toast('บันทึกไม่สำเร็จ: ' + e.message, 'circle-alert');
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+// Change password
+document.getElementById('savePasswordBtn').addEventListener('click', async () => {
+  const newPw = document.getElementById('set-new-password').value;
+  const confirmPw = document.getElementById('set-confirm-password').value;
+  if (!newPw || newPw.length < 6) {
+    toast('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร', 'circle-alert');
+    return;
+  }
+  if (newPw !== confirmPw) {
+    toast('รหัสผ่านไม่ตรงกัน', 'circle-alert');
+    document.getElementById('set-confirm-password').focus();
+    return;
+  }
+  const btn = document.getElementById('savePasswordBtn');
+  btn.disabled = true;
+  try {
+    await updatePassword(newPw);
+    toast('เปลี่ยนรหัสผ่านสำเร็จ', 'check-circle');
+    document.getElementById('set-new-password').value = '';
+    document.getElementById('set-confirm-password').value = '';
+  } catch (e) {
+    const msg = /weak password/i.test(e.message) ? 'รหัสผ่านนี้ยังไม่ปลอดภัยพอ'
+              : /same password/i.test(e.message) ? 'รหัสผ่านใหม่ต้องไม่เหมือนรหัสเดิม'
+              : e.message;
+    toast('เปลี่ยนรหัสผ่านไม่สำเร็จ: ' + msg, 'circle-alert');
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+// Sign out (button ใน Settings)
+document.getElementById('signOutBtn').addEventListener('click', async () => {
+  if (confirm('ออกจากระบบ?')) await signOut();
+});
