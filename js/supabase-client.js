@@ -23,6 +23,18 @@ async function signUp(email, password) {
   return data;
 }
 
+async function sendPasswordReset(email, redirectTo) {
+  const { data, error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo });
+  if (error) throw error;
+  return data;
+}
+
+async function updatePassword(password) {
+  const { data, error } = await supabaseClient.auth.updateUser({ password });
+  if (error) throw error;
+  return data;
+}
+
 async function signOut() {
   const { error } = await supabaseClient.auth.signOut();
   if (error) throw error;
