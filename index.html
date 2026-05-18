@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Vocab Keeper</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="app" class="app">
+    <header class="header">
+      <div class="header-left">
+        <div class="logo-box"><i data-lucide="book-open"></i></div>
+        <h1 class="logo-text">Vocab Keeper</h1>
+      </div>
+      <div class="header-right">
+        <button class="icon-btn" id="themeBtn" aria-label="Toggle theme">
+          <i data-lucide="moon"></i>
+        </button>
+        <button class="icon-btn" id="logoutBtn" aria-label="Sign out">
+          <i data-lucide="log-out"></i>
+        </button>
+      </div>
+    </header>
+
+    <main id="main" class="main">
+      <!-- ========== ADD PAGE ========== -->
+      <section class="page" data-page="add">
+        <div class="page-title">
+          <div class="title-icon"><i data-lucide="plus"></i></div>
+          <div>
+            <h2>Add Vocabulary</h2>
+            <p class="page-subtitle">Add a new word to your collection</p>
+          </div>
+        </div>
+
+        <form class="card form-card" id="addForm" onsubmit="return false;">
+          <div class="field">
+            <label>English Word <span class="req">*</span></label>
+            <div class="input-with-icon">
+              <input type="text" id="f-word" placeholder="e.g. allocate" />
+              <button type="button" class="speak-btn" data-speak="#f-word" aria-label="Speak">
+                <i data-lucide="volume-2"></i>
+              </button>
+            </div>
+            <small class="hint">Enter the word you want to learn.</small>
+          </div>
+
+          <div class="field">
+            <label>Thai Meaning <span class="req">*</span></label>
+            <input type="text" id="f-meaning" placeholder="เช่น จัดสรร, แบ่งปัน" />
+            <small class="hint">ใส่ความหมายภาษาไทย</small>
+          </div>
+
+          <div class="field">
+            <label>Part of Speech <span class="req">*</span></label>
+            <div class="chip-group" id="f-pos">
+              <button type="button" class="chip" data-value="Noun">Noun</button>
+              <button type="button" class="chip" data-value="Verb">Verb</button>
+              <button type="button" class="chip" data-value="Adjective">Adjective</button>
+              <button type="button" class="chip" data-value="Adverb">Adverb</button>
+            </div>
+            <small class="hint">เลือกชนิดของคำ</small>
+          </div>
+
+          <div class="field">
+            <label>TOEIC Frequency <span class="req">*</span></label>
+            <div class="star-rating" id="f-freq" data-value="0">
+              <button type="button" class="star" data-star="1"><i data-lucide="star"></i></button>
+              <button type="button" class="star" data-star="2"><i data-lucide="star"></i></button>
+              <button type="button" class="star" data-star="3"><i data-lucide="star"></i></button>
+            </div>
+            <small class="hint">ความถี่ที่ปรากฏในข้อสอบ TOEIC (1 = น้อย, 3 = มาก)</small>
+          </div>
+
+          <div class="field">
+            <label>Example Sentence</label>
+            <textarea id="f-example" maxlength="200" rows="3" placeholder="e.g. The manager will allocate the budget."></textarea>
+            <div class="counter"><span id="exCount">0</span> / 200</div>
+            <small class="hint">ตัวอย่างประโยคเพื่อช่วยในการจำ</small>
+          </div>
+
+          <div class="field">
+            <label>Tag</label>
+            <div class="tag-input-wrap" id="f-tags">
+              <span class="tag-list"></span>
+              <input type="text" class="tag-input" placeholder="+ Add tag (Enter to add)" />
+            </div>
+            <small class="hint">เพิ่มป้ายกำกับเพื่อจัดหมวดหมู่คำศัพท์</small>
+          </div>
+
+          <div class="field">
+            <label>Status <span class="req">*</span></label>
+            <div class="status-toggle" id="f-status" data-value="Learning">
+              <button type="button" class="status-btn active" data-value="Learning">
+                <i data-lucide="book-open"></i> Learning
+              </button>
+              <button type="button" class="status-btn" data-value="Mastered">
+                <i data-lucide="circle-check"></i> Mastered
+              </button>
+            </div>
+            <small class="hint">สถานะการเรียนรู้ของคำนี้</small>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" id="clearForm">
+              <i data-lucide="trash-2"></i> Clear
+            </button>
+            <button type="submit" class="btn btn-primary" id="saveWord">
+              <i data-lucide="save"></i> Save Vocabulary
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- ========== LIBRARY PAGE ========== -->
+      <section class="page" data-page="library" hidden>
+        <div class="page-title">
+          <div class="title-icon"><i data-lucide="book-open"></i></div>
+          <div>
+            <h2>My Vocabulary</h2>
+            <p class="page-subtitle">All saved words</p>
+          </div>
+        </div>
+
+        <div class="search-row">
+          <div class="search-input-wrap">
+            <i data-lucide="search" class="search-icon"></i>
+            <input type="text" id="searchInput" placeholder="Search vocabulary..." />
+          </div>
+          <button class="icon-btn filter-btn" aria-label="Filter">
+            <i data-lucide="sliders-horizontal"></i>
+          </button>
+        </div>
+
+        <div class="filter-chips" id="filterChips">
+          <button class="filter-chip active" data-filter="all">All</button>
+          <button class="filter-chip" data-filter="Learning"><i data-lucide="book-open"></i> Learning</button>
+          <button class="filter-chip" data-filter="Mastered"><i data-lucide="circle-check"></i> Mastered</button>
+          <button class="filter-chip" data-filter="tag:Business"><i data-lucide="briefcase"></i> Business</button>
+          <button class="filter-chip" data-filter="toeic-high"><i data-lucide="star"></i> TOEIC High</button>
+        </div>
+
+        <div class="loading-state" id="libraryLoading" hidden>
+          <div class="spinner"></div>
+          <p>กำลังโหลดคำศัพท์...</p>
+        </div>
+
+        <div class="word-list" id="wordList"></div>
+        <div class="empty-state" id="emptyLibrary" hidden>
+          <i data-lucide="search-x"></i>
+          <p>ไม่พบคำศัพท์ที่ตรงกับเงื่อนไข</p>
+        </div>
+      </section>
+
+      <!-- ========== DASHBOARD PAGE ========== -->
+      <section class="page" data-page="dashboard" hidden>
+        <div class="page-title">
+          <div>
+            <h2>Dashboard</h2>
+            <p class="page-subtitle">Track your learning progress</p>
+          </div>
+          <div class="period-pill">
+            <i data-lucide="calendar"></i> This Week
+            <i data-lucide="chevron-down"></i>
+          </div>
+        </div>
+
+        <div class="loading-state" id="dashLoading" hidden>
+          <div class="spinner"></div>
+        </div>
+
+        <div id="dashboardContent">
+          <div class="stat-grid">
+            <div class="stat-card">
+              <div class="stat-icon stat-icon-blue"><i data-lucide="book-open"></i></div>
+              <div class="stat-value" id="stat-total">0</div>
+              <div class="stat-label">Total Words</div>
+              <div class="stat-extra blue">+<span id="stat-week">0</span> this week</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon stat-icon-indigo"><i data-lucide="graduation-cap"></i></div>
+              <div class="stat-value" id="stat-learning">0</div>
+              <div class="stat-label">Learning</div>
+              <div class="stat-extra blue"><span id="stat-learning-pct">0</span>% of total</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon stat-icon-green"><i data-lucide="circle-check"></i></div>
+              <div class="stat-value" id="stat-mastered">0</div>
+              <div class="stat-label">Mastered</div>
+              <div class="stat-extra blue"><span id="stat-mastered-pct">0</span>% of total</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon stat-icon-red"><i data-lucide="frown"></i></div>
+              <div class="stat-value" id="stat-not-rem">0</div>
+              <div class="stat-label">Not Remembered</div>
+              <div class="stat-extra blue"><span id="stat-not-rem-pct">0</span>% of total</div>
+            </div>
+          </div>
+
+          <div class="two-col">
+            <div class="card">
+              <div class="card-header">
+                <h3>Learning Status</h3>
+                <i data-lucide="info"></i>
+              </div>
+              <div class="donut-wrap">
+                <canvas id="donutChart" width="180" height="180"></canvas>
+                <div class="donut-center">
+                  <div class="donut-total" id="donut-total">0</div>
+                  <div class="donut-sub">Total</div>
+                </div>
+              </div>
+              <div class="legend" id="donutLegend"></div>
+              <a class="card-link" data-nav="library">View all words <i data-lucide="arrow-right"></i></a>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <h3><i data-lucide="flame" style="color:#F97316"></i> Daily Review</h3>
+                <span class="streak-tag"><span id="streak-days">0</span> day streak</span>
+              </div>
+              <div class="ring-wrap">
+                <canvas id="ringChart" width="160" height="160"></canvas>
+                <div class="ring-center">
+                  <div class="ring-num"><span id="ring-done">0</span></div>
+                  <div class="ring-sub">/<span id="ring-goal">30</span></div>
+                </div>
+              </div>
+              <div class="ring-caption">
+                <strong>Reviews completed</strong>
+                <small>Great job! Keep it up.</small>
+              </div>
+              <div class="weekdays" id="weekdays"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>Words by Tag</h3>
+            </div>
+            <canvas id="tagBarChart" height="180"></canvas>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>Needs Attention</h3>
+              <a class="card-link" data-nav="review">View all <i data-lucide="arrow-right"></i></a>
+            </div>
+            <p class="muted small">Words that need more practice</p>
+            <div class="attention-list" id="attentionList"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== REVIEW PAGE ========== -->
+      <section class="page" data-page="review" hidden>
+        <div class="page-title">
+          <div>
+            <h2>Flashcard Review</h2>
+            <p class="page-subtitle">Guess the meaning before revealing it</p>
+          </div>
+          <div class="progress-pill">
+            <i data-lucide="layers"></i> <span id="rv-current">0</span> / <span id="rv-total">0</span> cards
+          </div>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="rv-progress"></div></div>
+
+        <div class="loading-state" id="reviewLoading" hidden>
+          <div class="spinner"></div>
+        </div>
+
+        <div id="reviewContent">
+          <div class="flashcard" id="flashcard">
+            <div class="flashcard-top">
+              <span class="pos-badge" id="fc-pos">—</span>
+              <div class="freq-stars" id="fc-freq"></div>
+            </div>
+            <div class="flashcard-word" id="fc-word">—</div>
+            <div class="flashcard-meaning" id="fc-meaning" hidden>
+              <div class="meaning-text" id="fc-meaning-text">—</div>
+              <div class="meaning-example" id="fc-example">—</div>
+            </div>
+            <div class="reveal-block" id="revealBlock">
+              <div class="lock-icon"><i data-lucide="lock"></i></div>
+              <p>Tap the button below<br />to reveal the meaning</p>
+              <button class="btn btn-primary big" id="showMeaningBtn">
+                <i data-lucide="eye"></i> Show Meaning
+              </button>
+            </div>
+          </div>
+
+          <div class="nav-row">
+            <button class="nav-pill" id="prevBtn"><i data-lucide="arrow-left"></i> Previous</button>
+            <button class="nav-pill" id="shuffleBtn"><i data-lucide="shuffle"></i> Shuffle</button>
+            <button class="nav-pill" id="nextBtn">Next <i data-lucide="arrow-right"></i></button>
+          </div>
+
+          <h4 class="rate-title">How well did you remember?</h4>
+          <div class="rate-grid">
+            <button class="rate-btn forgot" data-rate="forgot">
+              <i data-lucide="frown"></i><strong>Forgot</strong><small>1 min</small>
+            </button>
+            <button class="rate-btn hard" data-rate="hard">
+              <i data-lucide="meh"></i><strong>Hard</strong><small>5 min</small>
+            </button>
+            <button class="rate-btn easy" data-rate="easy">
+              <i data-lucide="smile"></i><strong>Easy</strong><small>15 min</small>
+            </button>
+            <button class="rate-btn mastered" data-rate="mastered">
+              <i data-lucide="star"></i><strong>Mastered</strong><small>1 day</small>
+            </button>
+          </div>
+
+          <div class="tip">
+            <i data-lucide="lightbulb"></i>
+            Your review helps us optimize your learning schedule.
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== GAME PAGE ========== -->
+      <section class="page" data-page="game" hidden>
+        <div class="page-title">
+          <div class="title-icon"><i data-lucide="gamepad-2"></i></div>
+          <div>
+            <h2>Meaning Match Game</h2>
+            <p class="page-subtitle">Choose the correct English word</p>
+          </div>
+        </div>
+
+        <div class="game-stats card row-card">
+          <div class="g-stat">
+            <div class="g-stat-icon"><i data-lucide="star" style="color:#FBBF24"></i></div>
+            <div>
+              <div class="g-stat-label">Score</div>
+              <div class="g-stat-value blue" id="g-score">0</div>
+            </div>
+          </div>
+          <div class="g-divider"></div>
+          <div class="g-stat">
+            <div class="g-stat-icon"><i data-lucide="bar-chart-3" style="color:#2563EB"></i></div>
+            <div>
+              <div class="g-stat-label">Question</div>
+              <div class="g-stat-value blue"><span id="g-current">0</span> / <span id="g-total">20</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="progress-bar"><div class="progress-fill" id="g-progress"></div></div>
+
+        <div class="loading-state" id="gameLoading" hidden>
+          <div class="spinner"></div>
+        </div>
+
+        <div class="game-card card" id="gameContent">
+          <div class="game-question" id="g-question">—</div>
+          <p class="muted center">What does this mean?</p>
+          <div class="game-options" id="g-options"></div>
+          <div class="game-result" id="g-result" hidden></div>
+          <button class="btn btn-primary big full" id="g-next" hidden>
+            Next <i data-lucide="arrow-right"></i>
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav">
+      <button class="nav-item" data-nav="add">
+        <i data-lucide="circle-plus"></i><span>Add</span>
+      </button>
+      <button class="nav-item" data-nav="library">
+        <i data-lucide="book-open"></i><span>Library</span>
+      </button>
+      <button class="nav-item" data-nav="dashboard">
+        <i data-lucide="bar-chart-3"></i><span>Dashboard</span>
+      </button>
+      <button class="nav-item" data-nav="review">
+        <i data-lucide="clipboard-list"></i><span>Review</span>
+      </button>
+      <button class="nav-item" data-nav="game">
+        <i data-lucide="gamepad-2"></i><span>Game</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- EDIT MODAL -->
+  <div class="modal-backdrop" id="editModal" hidden>
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Edit Vocabulary</h3>
+        <button class="icon-btn" id="closeEdit"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="field">
+          <label>English Word <span class="req">*</span></label>
+          <input type="text" id="e-word" />
+        </div>
+        <div class="field">
+          <label>Thai Meaning <span class="req">*</span></label>
+          <input type="text" id="e-meaning" />
+        </div>
+        <div class="field">
+          <label>Part of Speech</label>
+          <div class="chip-group" id="e-pos">
+            <button type="button" class="chip" data-value="Noun">Noun</button>
+            <button type="button" class="chip" data-value="Verb">Verb</button>
+            <button type="button" class="chip" data-value="Adjective">Adjective</button>
+            <button type="button" class="chip" data-value="Adverb">Adverb</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>TOEIC Frequency</label>
+          <div class="star-rating" id="e-freq" data-value="0">
+            <button type="button" class="star" data-star="1"><i data-lucide="star"></i></button>
+            <button type="button" class="star" data-star="2"><i data-lucide="star"></i></button>
+            <button type="button" class="star" data-star="3"><i data-lucide="star"></i></button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Example Sentence</label>
+          <textarea id="e-example" rows="3"></textarea>
+        </div>
+        <div class="field">
+          <label>Tags</label>
+          <div class="tag-input-wrap" id="e-tags">
+            <span class="tag-list"></span>
+            <input type="text" class="tag-input" placeholder="+ Add tag" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Status</label>
+          <div class="status-toggle" id="e-status" data-value="Learning">
+            <button type="button" class="status-btn" data-value="Learning">
+              <i data-lucide="book-open"></i> Learning
+            </button>
+            <button type="button" class="status-btn" data-value="Mastered">
+              <i data-lucide="circle-check"></i> Mastered
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="cancelEdit">Cancel</button>
+        <button class="btn btn-primary" id="saveEdit">
+          <i data-lucide="save"></i> Save Changes
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-wrap" id="toast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
