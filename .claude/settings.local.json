@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm --version)",
+      "Bash(npx --yes serve -p 8000 -L .)",
+      "Bash(curl -s -o /dev/null -w '%{http_code}' http://localhost:8000/__TRACKED_VAR__)",
+      "Bash(curl -sIL http://localhost:8000/login.html)"
+    ]
+  }
+}

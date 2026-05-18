@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign in — Vocab Keeper</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide-static@0.378.0/font/lucide.css" />
+  <style>
+    body { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .auth-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 32px 28px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: var(--shadow-lg);
+    }
+    .auth-logo {
+      width: 56px; height: 56px;
+      background: var(--brand);
+      color: #fff;
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px;
+      margin: 0 auto 18px;
+    }
+    .auth-title {
+      font-family: var(--font-display);
+      font-size: 26px; font-weight: 800;
+      text-align: center;
+      letter-spacing: -0.02em;
+    }
+    .auth-subtitle {
+      text-align: center;
+      color: var(--text-2);
+      margin: 6px 0 24px;
+      font-size: 14px;
+    }
+    .auth-tabs {
+      display: flex;
+      background: var(--surface-2);
+      border-radius: var(--radius);
+      padding: 4px;
+      margin-bottom: 22px;
+    }
+    .auth-tab {
+      flex: 1;
+      padding: 10px;
+      border-radius: 10px;
+      font-weight: 700; font-size: 14px;
+      color: var(--text-2);
+      transition: all 0.15s;
+    }
+    .auth-tab.active {
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: var(--shadow-sm);
+    }
+    .auth-error {
+      background: var(--red-soft);
+      color: var(--red);
+      padding: 10px 14px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      margin-bottom: 14px;
+      display: none;
+    }
+    .auth-error.show { display: flex; align-items: center; gap: 8px; }
+    .auth-success {
+      background: var(--green-soft);
+      color: var(--green);
+      padding: 10px 14px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      margin-bottom: 14px;
+      display: none;
+    }
+    .auth-success.show { display: flex; align-items: center; gap: 8px; }
+    .auth-toggle-theme {
+      position: fixed; top: 16px; right: 16px;
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      cursor: pointer;
+    }
+    .auth-footer {
+      text-align: center;
+      margin-top: 18px;
+      color: var(--text-3);
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <button class="auth-toggle-theme" id="themeBtn" aria-label="Toggle theme">
+    <i class="lucide lucide-moon"></i>
+  </button>
+
+  <div class="auth-card">
+    <div class="auth-logo"><i class="lucide lucide-book-open"></i></div>
+    <h1 class="auth-title">Vocab Keeper</h1>
+    <p class="auth-subtitle">เรียนรู้คำศัพท์ภาษาอังกฤษอย่างเป็นระบบ</p>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" data-mode="signin">Sign In</button>
+      <button class="auth-tab" data-mode="signup">Sign Up</button>
+    </div>
+
+    <div class="auth-error" id="authError">
+      <i class="lucide lucide-circle-alert"></i>
+      <span id="authErrorText"></span>
+    </div>
+    <div class="auth-success" id="authSuccess">
+      <i class="lucide lucide-circle-check"></i>
+      <span id="authSuccessText"></span>
+    </div>
+
+    <form id="authForm" onsubmit="return false;">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="email" placeholder="your@email.com" required autocomplete="email" />
+      </div>
+
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="password" placeholder="อย่างน้อย 6 ตัวอักษร" required autocomplete="current-password" minlength="6" />
+      </div>
+
+      <button type="submit" class="btn btn-primary full big" id="submitBtn">
+        <span id="submitText">Sign In</span>
+      </button>
+    </form>
+
+    <p class="auth-footer">
+      <i class="lucide lucide-shield-check"></i>
+      Your data is protected with Row Level Security
+    </p>
+  </div>
+
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script>
+    // ----------- Theme -----------
+    const THEME_KEY = 'vk-theme';
+    function applyTheme(t) {
+      document.documentElement.setAttribute('data-theme', t);
+      document.querySelector('#themeBtn i').className =
+        t === 'dark' ? 'lucide lucide-sun' : 'lucide lucide-moon';
+    }
+    const saved = localStorage.getItem(THEME_KEY);
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    applyTheme(saved || (prefersDark ? 'dark' : 'light'));
+    document.getElementById('themeBtn').addEventListener('click', () => {
+      const cur = document.documentElement.getAttribute('data-theme');
+      const next = cur === 'dark' ? 'light' : 'dark';
+      localStorage.setItem(THEME_KEY, next);
+      applyTheme(next);
+    });
+
+    // ----------- Redirect if already logged in -----------
+    redirectIfAuthed();
+
+    // ----------- Tabs -----------
+    let mode = 'signin';
+    document.querySelectorAll('.auth-tab').forEach((tab) => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.auth-tab').forEach((t) => t.classList.remove('active'));
+        tab.classList.add('active');
+        mode = tab.dataset.mode;
+        document.getElementById('submitText').textContent = mode === 'signin' ? 'Sign In' : 'Sign Up';
+        document.getElementById('password').autocomplete =
+          mode === 'signin' ? 'current-password' : 'new-password';
+        hideMessages();
+      });
+    });
+
+    // ----------- Messages -----------
+    function showError(msg) {
+      document.getElementById('authErrorText').textContent = msg;
+      document.getElementById('authError').classList.add('show');
+      document.getElementById('authSuccess').classList.remove('show');
+    }
+    function showSuccess(msg) {
+      document.getElementById('authSuccessText').textContent = msg;
+      document.getElementById('authSuccess').classList.add('show');
+      document.getElementById('authError').classList.remove('show');
+    }
+    function hideMessages() {
+      document.getElementById('authError').classList.remove('show');
+      document.getElementById('authSuccess').classList.remove('show');
+    }
+
+    // ----------- Submit -----------
+    document.getElementById('authForm').addEventListener('submit', async () => {
+      hideMessages();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const btn = document.getElementById('submitBtn');
+      const txt = document.getElementById('submitText');
+      const originalText = txt.textContent;
+      btn.disabled = true;
+      txt.innerHTML = '<i class="lucide lucide-loader-2" style="animation:spin 1s linear infinite"></i> กำลังดำเนินการ...';
+
+      try {
+        if (mode === 'signin') {
+          await signIn(email, password);
+          window.location.href = 'index.html';
+        } else {
+          const data = await signUp(email, password);
+          if (data.user && !data.session) {
+            // ต้องยืนยันอีเมล
+            showSuccess('สมัครสำเร็จ! กรุณายืนยันอีเมลก่อน Sign In');
+          } else {
+            // login อัตโนมัติ
+            window.location.href = 'index.html';
+          }
+        }
+      } catch (e) {
+        showError(translateAuthError(e.message));
+        btn.disabled = false;
+        txt.textContent = originalText;
+      }
+    });
+
+    function translateAuthError(msg) {
+      if (/invalid login credentials/i.test(msg)) return 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
+      if (/user already registered/i.test(msg)) return 'อีเมลนี้สมัครไว้แล้ว ลอง Sign In แทน';
+      if (/password should be at least/i.test(msg)) return 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร';
+      if (/invalid email/i.test(msg)) return 'รูปแบบอีเมลไม่ถูกต้อง';
+      return msg;
+    }
+  </script>
+  <style>
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</body>
+</html>
