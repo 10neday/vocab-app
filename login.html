@@ -260,6 +260,14 @@
         </div>
       </div>
 
+      <div class="field" id="confirmField" hidden>
+        <label for="confirmPassword">Confirm Password</label>
+        <div class="input-wrap">
+          <i data-lucide="lock-keyhole" class="input-icon"></i>
+          <input type="password" id="confirmPassword" placeholder="ใส่รหัสผ่านอีกครั้ง" autocomplete="new-password" minlength="6" />
+        </div>
+      </div>
+
       <button type="submit" id="submitBtn">
         <span id="submitText">Sign In</span>
       </button>
@@ -303,6 +311,8 @@
 
     // ----------- Tabs -----------
     let mode = 'signin';
+    const confirmField = document.getElementById('confirmField');
+    const confirmInput = document.getElementById('confirmPassword');
     document.querySelectorAll('.auth-tab').forEach((tab) => {
       tab.addEventListener('click', () => {
         document.querySelectorAll('.auth-tab').forEach((t) => t.classList.remove('active'));
@@ -311,6 +321,11 @@
         document.getElementById('submitText').textContent = mode === 'signin' ? 'Sign In' : 'Sign Up';
         document.getElementById('password').autocomplete =
           mode === 'signin' ? 'current-password' : 'new-password';
+        // Show/hide confirm field
+        const isSignup = mode === 'signup';
+        confirmField.hidden = !isSignup;
+        confirmInput.required = isSignup;
+        if (!isSignup) confirmInput.value = '';
         hideMessages();
       });
     });
@@ -339,6 +354,14 @@
       const btn = document.getElementById('submitBtn');
       const txt = document.getElementById('submitText');
       const originalText = txt.textContent;
+
+      // Confirm password (เฉพาะ Sign Up)
+      if (mode === 'signup' && password !== confirmInput.value) {
+        showError('รหัสผ่านไม่ตรงกัน กรุณากรอกใหม่');
+        confirmInput.focus();
+        return;
+      }
+
       btn.disabled = true;
       txt.innerHTML = '<i data-lucide="loader-2" style="animation:spin 1s linear infinite"></i> กำลังดำเนินการ...';
 
