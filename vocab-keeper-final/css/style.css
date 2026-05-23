@@ -1,9 +1,3 @@
-/* ================================================================
-   Vocab Keeper — Styles
-   Mobile-first design matching the provided mockups
-   Light + Dark mode via [data-theme] on <html>
-================================================================ */
-
 /* ---------- Design Tokens ---------- */
 :root {
   /* Brand */
@@ -223,6 +217,10 @@ input, textarea { font-family: inherit; }
 }
 .req { color: var(--red); }
 .field input[type="text"],
+.field input[type="email"],
+.field input[type="password"],
+.field input[type="number"],
+.field input[type="search"],
 .field textarea {
   width: 100%;
   padding: 12px 14px;
@@ -231,8 +229,19 @@ input, textarea { font-family: inherit; }
   background: var(--surface);
   color: var(--text);
   font-size: 15px;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  font-family: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
 }
+.field input::placeholder,
+.field textarea::placeholder { color: var(--text-3); }
+.field input:hover:not(:focus),
+.field textarea:hover:not(:focus) { border-color: var(--border-strong); }
+/* ซ่อน spinner ของ number input ที่บางทีดูรกๆ */
+.field input[type="number"]::-webkit-inner-spin-button,
+.field input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none; margin: 0;
+}
+.field input[type="number"] { -moz-appearance: textfield; }
 .field input:focus,
 .field textarea:focus {
   outline: none;
@@ -1037,4 +1046,237 @@ input, textarea { font-family: inherit; }
   opacity: 0.6;
   cursor: not-allowed;
   pointer-events: none;
+}
+
+/* ============================================================
+   DESKTOP LAYOUT (≥ 1024px)
+   เปลี่ยน bottom-nav เป็น sidebar ซ้าย, content เต็มหน้าจอ
+   Mobile/tablet (< 1024px) ใช้ layout เดิม (mobile-first)
+============================================================ */
+@media (min-width: 1024px) {
+  :root { --sidebar-w: 240px; --content-max: 1200px; }
+
+  body { font-size: 15px; }
+
+  /* App container: ไม่บีบกลาง, เว้นที่สำหรับ sidebar ทางซ้าย */
+  .app {
+    max-width: none;
+    margin: 0;
+    padding-left: var(--sidebar-w);
+    padding-bottom: 32px;
+    box-shadow: none;
+    background: var(--bg);
+  }
+
+  /* Header: stretch + padding กว้างขึ้น, sticky บนสุดของ content area */
+  .header {
+    padding: 16px 32px;
+  }
+  .logo-box { width: 42px; height: 42px; font-size: 22px; }
+  .logo-text { font-size: 20px; }
+
+  /* Main: padding กว้าง + จำกัด content ไม่ให้ยาวเกิน */
+  .main {
+    padding: 32px 40px;
+    max-width: var(--content-max);
+    margin: 0 auto;
+  }
+
+  /* ----- Sidebar (transformed from .bottom-nav) ----- */
+  .bottom-nav {
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    transform: none;
+    width: var(--sidebar-w);
+    max-width: none;
+    height: 100vh;
+    /* minmax(0, 1fr) — กัน column ขยายตาม content ที่ยาว (เช่น email)
+       1fr อย่างเดียวจะให้ track โต follow content; minmax(0, ...) บังคับให้ shrink ได้ */
+    grid-template-columns: minmax(0, 1fr);
+    grid-auto-rows: max-content;
+    align-content: start;
+    gap: 4px;
+    padding: 24px 14px;
+    border-top: none;
+    border-right: 1px solid var(--border);
+  }
+  /* Brand block at top of sidebar (optional title) */
+  .bottom-nav::before {
+    content: 'Menu';
+    display: block;
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-3);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 8px 14px 12px;
+  }
+  .nav-item {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 11px 14px;
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-2);
+    transition: background 0.15s, color 0.15s;
+  }
+  .nav-item i { font-size: 19px; }
+  .nav-item span { font-size: 14px; }
+  .nav-item:hover { background: var(--surface-2); color: var(--text); }
+  .nav-item.active {
+    background: var(--brand-soft);
+    color: var(--brand);
+  }
+  /* แทน indicator bar ด้วย background (mobile ใช้ ::before) */
+  .nav-item.active::before { display: none; }
+
+  /* ----- Lists & grids ขยายให้ใช้พื้นที่ ----- */
+  .word-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+  .stat-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+  .stat-value { font-size: 30px; }
+
+  /* Form / flashcard / game ไม่ควรกว้างเกินไป → จำกัด */
+  .form-card,
+  .flashcard,
+  .game-card {
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Toast: ย้ายไปมุมขวาล่าง (ของ window) */
+  .toast-wrap {
+    bottom: 24px;
+    left: auto;
+    right: 24px;
+    transform: none;
+  }
+
+  /* Modal: ขยายเล็กน้อยให้ฟอร์มไม่อึดอัด */
+  .modal-card { max-width: 520px; }
+
+  /* Sidebar user (ปลาย sidebar — desktop เท่านั้น) */
+  .sidebar-user {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: var(--radius);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+  }
+  .sidebar-user-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--brand), var(--brand-2));
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 14px;
+    flex-shrink: 0;
+  }
+  .sidebar-user-meta { min-width: 0; flex: 1; }
+  .sidebar-user-email {
+    font-size: 12px; font-weight: 600;
+    color: var(--text);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .sidebar-user-status {
+    font-size: 11px;
+    color: var(--text-3);
+    display: flex; align-items: center; gap: 5px;
+    margin-top: 2px;
+  }
+  .sidebar-user-status .status-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 0 3px var(--green-soft);
+  }
+}
+
+/* Sidebar user — ซ่อนบน mobile/tablet (bottom-nav แบบ 5-col) */
+@media (max-width: 1023.98px) {
+  .sidebar-user { display: none; }
+}
+
+/* ============================================================
+   SETTINGS PAGE
+============================================================ */
+.settings-section { padding: 20px; }
+.settings-section + .settings-section { margin-top: 16px; }
+.settings-section-header {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.settings-section-header i { color: var(--brand); }
+.settings-section-header svg { width: 18px; height: 18px; }
+.settings-section-header h3 {
+  font-family: var(--font-display);
+  font-size: 16px; font-weight: 700;
+}
+.settings-desc {
+  color: var(--text-2);
+  font-size: 13px;
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+.settings-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 0;
+  font-size: 14px;
+}
+.settings-row + .settings-row { border-top: 1px solid var(--border); }
+.settings-label { color: var(--text-2); font-weight: 500; }
+.settings-value {
+  color: var(--text); font-weight: 600;
+  text-align: right;
+  overflow: hidden; text-overflow: ellipsis;
+  max-width: 60%;
+}
+.settings-actions {
+  display: flex; justify-content: flex-end; gap: 10px;
+  margin-top: 4px;
+}
+.settings-actions .btn { padding: 11px 18px; }
+
+/* Danger button (Sign out) */
+.btn-danger {
+  background: var(--red-soft);
+  color: var(--red);
+  border: 1px solid transparent;
+  font-weight: 700;
+  padding: 11px 18px;
+  border-radius: var(--radius);
+  display: inline-flex; align-items: center; gap: 8px;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn-danger:hover {
+  background: var(--red);
+  color: #fff;
+}
+
+/* Filter divider — เส้นแบ่งระหว่าง filter ระบบกับ tag dynamic */
+.filter-divider {
+  width: 1px;
+  align-self: stretch;
+  background: var(--border);
+  margin: 4px 4px;
+}
+
+/* จอใหญ่มาก: ให้ list 3 column */
+@media (min-width: 1440px) {
+  .word-list { grid-template-columns: repeat(3, 1fr); }
 }

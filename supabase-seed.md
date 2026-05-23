@@ -11,7 +11,7 @@
 -- ตัวอย่าง: '550e8400-e29b-41d4-a716-446655440000'
 do $$
 declare
-  v_user_id uuid := 'YOUR_USER_ID';  -- ⚠️ เปลี่ยนตรงนี้
+  v_user_id uuid := '30a4a6d1-cbec-4e42-9f2b-fda3e4a1b4df';  -- ⚠️ เปลี่ยนตรงนี้
 begin
 
   insert into public.words (user_id, word, meaning_th, pos, example, tags, toeic_frequency, status, correct_count, wrong_count, streak)

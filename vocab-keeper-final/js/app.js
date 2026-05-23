@@ -5,6 +5,12 @@
 let currentUser = null;
 let currentPage = 'library';
 
+// Lucide JS — render <i data-lucide="..."> elements as inline SVG.
+// Call after innerHTML updates that introduce new icons.
+function renderIcons(scope) {
+  if (window.lucide) window.lucide.createIcons(scope ? { context: scope } : undefined);
+}
+
 // ----------------------------------------------------------------
 // AUTH GUARD - ต้อง login ก่อน
 // ----------------------------------------------------------------
@@ -12,6 +18,15 @@ let currentPage = 'library';
   currentUser = await requireAuth();
   if (!currentUser) return;
   console.log('Logged in as:', currentUser.email);
+  // Sidebar user info (desktop)
+  const emailEl = document.getElementById('userEmail');
+  const avatarEl = document.getElementById('userAvatar');
+  if (emailEl && currentUser.email) {
+    emailEl.textContent = currentUser.email;
+    emailEl.title = currentUser.email;
+    avatarEl.textContent = currentUser.email[0].toUpperCase();
+  }
+  renderIcons();
   initTheme();
   showPage('library');
 })();
@@ -22,8 +37,11 @@ let currentPage = 'library';
 const THEME_KEY = 'vk-theme';
 function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
-  const icon = document.querySelector('#themeBtn i');
-  if (icon) icon.className = theme === 'dark' ? 'lucide lucide-sun' : 'lucide lucide-moon';
+  const btn = document.getElementById('themeBtn');
+  if (btn) {
+    btn.innerHTML = `<i data-lucide="${theme === 'dark' ? 'sun' : 'moon'}"></i>`;
+    renderIcons(btn);
+  }
   if (currentPage === 'dashboard') renderDashboard();
 }
 function initTheme() {
@@ -63,11 +81,13 @@ function showPage(name) {
   if (name === 'review') startReview();
   if (name === 'game') startGame();
   if (name === 'add') resetAddForm();
+  if (name === 'settings') renderSettings();
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
 document.querySelectorAll('[data-nav]').forEach((btn) => {
   btn.addEventListener('click', () => showPage(btn.dataset.nav));
 });
+document.getElementById('settingsBtn').addEventListener('click', () => showPage('settings'));
 
 // ----------------------------------------------------------------
 // TOAST
@@ -76,8 +96,9 @@ function toast(msg, icon = 'check-circle') {
   const wrap = document.getElementById('toast');
   const el = document.createElement('div');
   el.className = 'toast';
-  el.innerHTML = `<i class="lucide lucide-${icon}"></i> ${msg}`;
+  el.innerHTML = `<i data-lucide="${icon}"></i> ${msg}`;
   wrap.appendChild(el);
+  renderIcons(el);
   setTimeout(() => el.remove(), 2400);
 }
 function toastError(e) {
@@ -152,8 +173,9 @@ function renderTagsList(containerSel, tags) {
   const container = document.querySelector(containerSel);
   const tagList = container.querySelector('.tag-list');
   tagList.innerHTML = tags
-    .map((t, i) => `<span class="tag-pill">${escapeHtml(t)}<button type="button" data-rm="${i}"><i class="lucide lucide-x"></i></button></span>`)
+    .map((t, i) => `<span class="tag-pill">${escapeHtml(t)}<button type="button" data-rm="${i}"><i data-lucide="x"></i></button></span>`)
     .join('');
+  renderIcons(tagList);
   tagList.querySelectorAll('[data-rm]').forEach((btn) => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -203,7 +225,8 @@ document.getElementById('saveWord').addEventListener('click', async () => {
   }
   const btn = document.getElementById('saveWord');
   btn.disabled = true;
-  btn.innerHTML = '<i class="lucide lucide-loader-2" style="animation:spin 1s linear infinite"></i> Saving...';
+  btn.innerHTML = '<i data-lucide="loader-2" style="animation:spin 1s linear infinite"></i> Saving...';
+  renderIcons(btn);
   try {
     await api.createWord({
       word, meaning_th: meaning, pos: addForm.pos,
@@ -221,7 +244,8 @@ document.getElementById('saveWord').addEventListener('click', async () => {
     }
   } finally {
     btn.disabled = false;
-    btn.innerHTML = '<i class="lucide lucide-save"></i> Save Vocabulary';
+    btn.innerHTML = '<i data-lucide="save"></i> Save Vocabulary';
+    renderIcons(btn);
   }
 });
 
@@ -238,14 +262,40 @@ document.getElementById('searchInput').addEventListener('input', (e) => {
   searchTimeout = setTimeout(renderLibrary, 250);
 });
 
-document.querySelectorAll('#filterChips .filter-chip').forEach((chip) => {
-  chip.addEventListener('click', () => {
-    document.querySelectorAll('#filterChips .filter-chip').forEach((c) => c.classList.remove('active'));
-    chip.classList.add('active');
-    libFilter = chip.dataset.filter;
-    renderLibrary();
-  });
+// Event delegation — รองรับ chips ที่เพิ่มทีหลังแบบ dynamic (tag chips)
+document.getElementById('filterChips').addEventListener('click', (e) => {
+  const chip = e.target.closest('.filter-chip');
+  if (!chip) return;
+  document.querySelectorAll('#filterChips .filter-chip').forEach((c) => c.classList.remove('active'));
+  chip.classList.add('active');
+  libFilter = chip.dataset.filter;
+  renderLibrary();
 });
+
+async function renderTagChips() {
+  try {
+    const tags = await api.listAllTags();
+    const container = document.getElementById('filterChips');
+    const divider = container.querySelector('[data-tag-divider]');
+    // ลบ tag chips เก่าออก (รักษา chip ระบบ + divider)
+    container.querySelectorAll('[data-tag-chip]').forEach((el) => el.remove());
+    if (tags.length === 0) { divider.hidden = true; return; }
+    divider.hidden = false;
+    for (const tag of tags) {
+      const btn = document.createElement('button');
+      btn.className = 'filter-chip';
+      btn.dataset.filter = `tag:${tag}`;
+      btn.dataset.tagChip = '';
+      btn.innerHTML = `<i data-lucide="tag"></i> ${escapeHtml(tag)}`;
+      // ถ้า filter ปัจจุบันคือ tag นี้ ให้ active ต่อหลัง re-render
+      if (libFilter === `tag:${tag}`) btn.classList.add('active');
+      container.appendChild(btn);
+    }
+    renderIcons(container);
+  } catch (e) {
+    console.warn('renderTagChips failed', e);
+  }
+}
 
 function statusForUI(w) {
   if (w.next_review && new Date(w.next_review) < new Date() && w.status !== 'Mastered') return 'Review';
@@ -253,7 +303,7 @@ function statusForUI(w) {
 }
 
 function renderFreqStars(n) {
-  return Array.from({ length: 3 }, (_, i) => `<i class="lucide lucide-star${i < n ? '' : ' dim'}"></i>`).join('');
+  return Array.from({ length: 3 }, (_, i) => `<i data-lucide="star"${i < n ? '' : ' class="dim"'}></i>`).join('');
 }
 
 function escapeHtml(s) {
@@ -271,6 +321,9 @@ async function renderLibrary() {
   empty.hidden = true;
   container.innerHTML = '';
 
+  // Refresh dynamic tag chips ตามคำที่มีจริง (ไม่รอ await — render parallel กับ word list)
+  renderTagChips();
+
   try {
     const list = await api.listWords({ search: libSearch, filter: libFilter });
     loading.hidden = true;
@@ -279,16 +332,16 @@ async function renderLibrary() {
     container.innerHTML = list.map((w) => {
       const s = statusForUI(w);
       const statusBadge =
-        s === 'Mastered'   ? `<span class="wc-status Mastered"><i class="lucide lucide-circle-check"></i> Mastered</span>` :
-        s === 'Review'     ? `<span class="wc-status Review"><i class="lucide lucide-clock"></i> Need Review</span>` :
-                             `<span class="wc-status Learning"><i class="lucide lucide-book-open"></i> Learning</span>`;
+        s === 'Mastered'   ? `<span class="wc-status Mastered"><i data-lucide="circle-check"></i> Mastered</span>` :
+        s === 'Review'     ? `<span class="wc-status Review"><i data-lucide="clock"></i> Need Review</span>` :
+                             `<span class="wc-status Learning"><i data-lucide="book-open"></i> Learning</span>`;
       const firstTag = w.tags && w.tags[0];
       return `
         <article class="word-card" data-id="${w.id}">
           <div class="wc-row">
             <div>
               <div class="wc-word">${escapeHtml(w.word)}
-                <button class="wc-speak" data-speak-word="${escapeHtml(w.word)}"><i class="lucide lucide-volume-2"></i></button>
+                <button class="wc-speak" data-speak-word="${escapeHtml(w.word)}"><i data-lucide="volume-2"></i></button>
               </div>
               <div class="wc-meaning" lang="th">${escapeHtml(w.meaning_th)}</div>
               <div class="wc-pos">${escapeHtml(w.pos || '')}</div>
@@ -296,8 +349,8 @@ async function renderLibrary() {
             <div style="display:flex; gap:6px; align-items:flex-start; flex-direction:column;">
               ${statusBadge}
               <div class="wc-actions">
-                <button class="wc-action edit" data-edit="${w.id}"><i class="lucide lucide-pencil"></i><span>Edit</span></button>
-                <button class="wc-action delete" data-del="${w.id}"><i class="lucide lucide-trash-2"></i><span>Delete</span></button>
+                <button class="wc-action edit" data-edit="${w.id}"><i data-lucide="pencil"></i><span>Edit</span></button>
+                <button class="wc-action delete" data-del="${w.id}"><i data-lucide="trash-2"></i><span>Delete</span></button>
               </div>
             </div>
           </div>
@@ -312,6 +365,7 @@ async function renderLibrary() {
         </article>
       `;
     }).join('');
+    renderIcons(container);
 
     container.querySelectorAll('[data-speak-word]').forEach((b) => {
       b.addEventListener('click', () => speak(b.dataset.speakWord));
@@ -464,7 +518,7 @@ async function renderDashboard() {
       .join('');
 
     // Ring + streak
-    const goal = 30;
+    const goal = getDailyGoal();
     const reviewsToday = stats?.reviews_today || 0;
     drawRing('ringChart', reviewsToday, goal);
     document.getElementById('ring-done').textContent = reviewsToday;
@@ -477,9 +531,10 @@ async function renderDashboard() {
     document.getElementById('weekdays').innerHTML = weekdays
       .map((d, i) => {
         const cls = i < today ? 'done' : i === today ? 'today' : '';
-        const icon = i < today ? '<i class="lucide lucide-check"></i>' : '';
+        const icon = i < today ? '<i data-lucide="check"></i>' : '';
         return `<div class="weekday ${cls}"><div class="day-dot">${icon}</div><span>${d}</span></div>`;
       }).join('');
+    renderIcons(document.getElementById('weekdays'));
 
     // Tag bars
     const tagItems = (stats?.tags_breakdown || [])
@@ -566,8 +621,9 @@ function renderFlashcard() {
   document.getElementById('fc-meaning-text').textContent = w.meaning_th;
   document.getElementById('fc-example').textContent = w.example || '';
   document.getElementById('fc-freq').innerHTML =
-    Array.from({ length: 3 }, (_, i) => `<i class="lucide lucide-star${i < w.toeic_frequency ? '' : ' dim'}"></i>`).join('') +
+    Array.from({ length: 3 }, (_, i) => `<i data-lucide="star"${i < w.toeic_frequency ? '' : ' class="dim"'}></i>`).join('') +
     '<div class="freq-label">TOEIC Frequency</div>';
+  renderIcons(document.getElementById('fc-freq'));
   document.getElementById('rv-current').textContent = reviewIdx + 1;
   document.getElementById('rv-total').textContent = reviewQueue.length;
   document.getElementById('rv-progress').style.width = `${((reviewIdx + 1) / reviewQueue.length) * 100}%`;
@@ -692,8 +748,6 @@ function renderGameQuestion() {
   document.querySelectorAll('.game-option').forEach((btn) => {
     btn.addEventListener('click', () => handleGameAnswer(btn, correct));
   });
-
-  document.getElementById('g-speak').onclick = () => speak(correct.meaning_th, 'th-TH');
 }
 
 function handleGameAnswer(btn, correct) {
@@ -710,14 +764,15 @@ function handleGameAnswer(btn, correct) {
     gameScore++;
     resultBox.className = 'game-result correct';
     resultBox.innerHTML = `
-      <div class="badge"><i class="lucide lucide-check"></i></div>
+      <div class="badge"><i data-lucide="check"></i></div>
       <div class="game-result-text"><strong>Correct!</strong><small>"${escapeHtml(correct.word)}" means ${escapeHtml(correct.meaning_th)}</small></div>`;
   } else {
     resultBox.className = 'game-result wrong';
     resultBox.innerHTML = `
-      <div class="badge"><i class="lucide lucide-x"></i></div>
+      <div class="badge"><i data-lucide="x"></i></div>
       <div class="game-result-text"><strong>Incorrect</strong><small>The correct answer is "${escapeHtml(correct.word)}" — ${escapeHtml(correct.meaning_th)}</small></div>`;
   }
+  renderIcons(resultBox);
   document.getElementById('g-score').textContent = gameScore;
   document.getElementById('g-next').hidden = false;
   gameTimer = setTimeout(() => nextGameQuestion(), 2500);
@@ -734,3 +789,82 @@ function nextGameQuestion() {
     startGame();
   }
 }
+
+// ================================================================
+// SETTINGS PAGE
+// ================================================================
+function getDailyGoal() {
+  const v = currentUser?.user_metadata?.daily_goal;
+  return Number.isFinite(+v) && +v > 0 ? +v : 30;
+}
+
+function renderSettings() {
+  // Profile
+  document.getElementById('set-email').textContent = currentUser.email || '—';
+  const created = currentUser.created_at ? new Date(currentUser.created_at) : null;
+  document.getElementById('set-joined').textContent = created
+    ? created.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' })
+    : '—';
+  // Daily goal current value
+  document.getElementById('set-goal').value = getDailyGoal();
+  // Reset password fields
+  document.getElementById('set-new-password').value = '';
+  document.getElementById('set-confirm-password').value = '';
+}
+
+// Save daily goal
+document.getElementById('saveGoalBtn').addEventListener('click', async () => {
+  const input = document.getElementById('set-goal');
+  const goal = parseInt(input.value, 10);
+  if (!Number.isFinite(goal) || goal < 1 || goal > 500) {
+    toast('กรุณาใส่ตัวเลข 1–500', 'circle-alert');
+    return;
+  }
+  const btn = document.getElementById('saveGoalBtn');
+  btn.disabled = true;
+  try {
+    const { data, error } = await supabaseClient.auth.updateUser({ data: { daily_goal: goal } });
+    if (error) throw error;
+    currentUser = data.user; // refresh local copy
+    toast('บันทึก Daily Goal แล้ว', 'check-circle');
+  } catch (e) {
+    toast('บันทึกไม่สำเร็จ: ' + e.message, 'circle-alert');
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+// Change password
+document.getElementById('savePasswordBtn').addEventListener('click', async () => {
+  const newPw = document.getElementById('set-new-password').value;
+  const confirmPw = document.getElementById('set-confirm-password').value;
+  if (!newPw || newPw.length < 6) {
+    toast('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร', 'circle-alert');
+    return;
+  }
+  if (newPw !== confirmPw) {
+    toast('รหัสผ่านไม่ตรงกัน', 'circle-alert');
+    document.getElementById('set-confirm-password').focus();
+    return;
+  }
+  const btn = document.getElementById('savePasswordBtn');
+  btn.disabled = true;
+  try {
+    await updatePassword(newPw);
+    toast('เปลี่ยนรหัสผ่านสำเร็จ', 'check-circle');
+    document.getElementById('set-new-password').value = '';
+    document.getElementById('set-confirm-password').value = '';
+  } catch (e) {
+    const msg = /weak password/i.test(e.message) ? 'รหัสผ่านนี้ยังไม่ปลอดภัยพอ'
+              : /same password/i.test(e.message) ? 'รหัสผ่านใหม่ต้องไม่เหมือนรหัสเดิม'
+              : e.message;
+    toast('เปลี่ยนรหัสผ่านไม่สำเร็จ: ' + msg, 'circle-alert');
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+// Sign out (button ใน Settings)
+document.getElementById('signOutBtn').addEventListener('click', async () => {
+  if (confirm('ออกจากระบบ?')) await signOut();
+});

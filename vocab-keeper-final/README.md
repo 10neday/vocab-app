@@ -1,96 +1,73 @@
-# Vocab Keeper — Demo (Phase 1)
+# 📚 Vocab Keeper
 
-แอปจดจำคำศัพท์ภาษาอังกฤษ พร้อมระบบ Spaced Repetition + Flashcard + Game
-**สถานะปัจจุบัน:** Demo ใช้ Mock Data ในหน่วยความจำ (ยังไม่เชื่อมต่อ Supabase)
+A personal vocabulary web app for Thai learners — save, organize, and practice English words with a clean and focused experience.
 
-## โครงสร้างไฟล์
+🌐 **Live:** [vocabkeeper.vercel.app](https://vocabkeeper.vercel.app/index.html)
 
-```
-vocab-keeper/
-├── index.html          ← หน้าหลัก รวมทุก section
-├── css/
-│   └── style.css       ← สไตล์ทั้งหมด + Dark mode
-├── js/
-│   ├── mock-data.js    ← ข้อมูลคำศัพท์ตัวอย่าง 12 คำ
-│   ├── charts.js       ← Donut, Ring, Bar chart (canvas)
-│   └── app.js          ← Logic ทุกหน้า
-└── README.md
-```
+---
 
-## วิธีเปิดดู Demo
+## ✨ Features
 
-**วิธีที่ 1: เปิดไฟล์ตรงๆ**
-- ดับเบิลคลิก `index.html` ก็เปิดได้เลย
+- **Add Vocabulary** — Save English words with Thai meaning, part of speech, TOEIC frequency, example sentence, and custom tags
+- **Library** — View all saved words in a card layout, filter by status or tag, and search by keyword
+- **Dashboard** — Track your learning progress with charts showing total words, learning status, daily review streak, and words that need attention
+- **Flashcard Review** — Flip through your words and rate how well you remembered each one (Forgot / Hard / Easy / Mastered)
+- **Meaning Match Game** — Quiz yourself by choosing the correct English word from a given Thai meaning
 
-**วิธีที่ 2: รัน local server (แนะนำ)**
-```bash
-# ถ้ามี Python
-python3 -m http.server 8000
+---
 
-# หรือถ้ามี Node.js
-npx serve
+## 📸 Screenshots
 
-# หรือใน VSCode ติดตั้ง extension "Live Server" แล้วคลิกขวา index.html → Open with Live Server
-```
-แล้วเปิด browser ไปที่ `http://localhost:8000`
+### ➕ Add Vocabulary
+<img width="1920" height="1041" alt="add-page" src="https://github.com/user-attachments/assets/536f32da-3b78-4a2b-adc8-81ea62c274c3" />
 
-## ฟีเจอร์ใน Demo นี้
+<!-- [Insert screenshot here] -->
 
-### หน้า Add Vocabulary
-- ฟอร์มเพิ่มคำศัพท์ครบทุก field
-- POS chips (Noun/Verb/Adjective/Adverb)
-- TOEIC Frequency 1-3 ดาว
-- Tag input (Enter เพิ่ม tag, คลิก × เพื่อลบ)
-- Text-to-Speech (กดไอคอนลำโพง)
-- Validation ก่อนบันทึก
+&nbsp;
 
-### หน้า Library
-- รายการคำศัพท์ทั้งหมด
-- ค้นหา (search ใน word, meaning, example, tag)
-- Filter chips: All / Learning / Mastered / Business / TOEIC High
-- ลบคำ + ออกเสียง
-- แสดง status badge (Learning/Mastered/Need Review)
+### 📖 Library
+<img width="1920" height="1036" alt="Library-page" src="https://github.com/user-attachments/assets/1ddb8382-b634-44d5-bedc-00924cb03c2e" />
 
-### หน้า Dashboard
-- 4 stat cards (Total, Learning, Mastered, Not Remembered)
-- Donut chart แสดง Learning Status
-- Ring chart แสดง Daily Review progress
-- Weekday tracker (7-day streak)
-- Bar chart Words by Tag
-- Needs Attention — คำที่ตอบผิดบ่อย
+<!-- [Insert screenshot here] -->
 
-### หน้า Review (Flashcard)
-- ระบบ Spaced Repetition เต็มรูปแบบ
-- 4 ปุ่มประเมิน: Forgot (1 min) / Hard (5 min) / Easy (15 min) / Mastered (1 day)
-- Previous / Next / Shuffle
-- Progress bar + counter
-- **Keyboard shortcuts:**
-  - `Space` → Show Meaning
-  - `←` / `→` → Previous/Next
-  - `1` `2` `3` `4` → Forgot/Hard/Easy/Mastered
+&nbsp;
 
-### หน้า Game (Meaning Match)
-- เกมเลือกคำศัพท์ที่ตรงกับความหมาย
-- คะแนนแบบ real-time
-- Auto-advance หลังตอบ 2.5 วินาที
-- Speak ความหมาย (ภาษาไทย)
+### 📊 Dashboard
+<img width="1920" height="1042" alt="Dashboard-page" src="https://github.com/user-attachments/assets/fc77cbc8-42c7-4cce-8deb-72641d2abff7" />
 
-### Dark Mode
-- คลิกไอคอน Moon/Sun ที่ header ขวาบน
-- บันทึก preference ใน localStorage
-- ติดตาม system preference อัตโนมัติในครั้งแรก
+<!-- [Insert screenshot here] -->
 
-## ขั้นตอนถัดไป (Phase 2)
+&nbsp;
 
-หลังจากคุณดู demo แล้วโอเคกับ UI/UX ผมจะทำต่อ:
-1. สร้าง Supabase project + Schema SQL
-2. เปลี่ยน mock-data.js เป็นการเรียก Supabase
-3. เพิ่มหน้า Login/Register
-4. เพิ่ม Edit word modal
-5. Deploy ขึ้น Vercel
+### 🔁 Flashcard Review
+<img width="1920" height="1038" alt="Review-page" src="https://github.com/user-attachments/assets/a8cd4db2-6cc8-47c8-8d28-c0388027e964" />
 
-## หมายเหตุ
+<!-- [Insert screenshot here] -->
 
-- ข้อมูลจะหายเมื่อ refresh page (เพราะยังไม่ได้เชื่อม database)
-- ใช้ Web Speech API ของ browser สำหรับ TTS (ฟรี ไม่ต้องใช้ API key)
-- Charts วาดด้วย Canvas เอง ไม่ใช้ Chart.js เพื่อขนาดไฟล์เล็ก
+&nbsp;
+
+### 🎮 Meaning Match Game
+<img width="1920" height="1038" alt="Game-page" src="https://github.com/user-attachments/assets/ff50a6f1-ef26-47b9-a965-91c5f836cb75" />
+
+<!-- [Insert screenshot here] -->
+
+&nbsp;
+
+---
+
+## 🚀 Getting Started
+
+1. Clone this repository
+   ```bash
+   git clone https://github.com/your-username/vocab-app.git
+   ```
+2. Open `index.html` in your browser — no build step required
+
+---
+
+## 🛠️ Tech Stack
+
+- Claude.ai
+- HTML / CSS / JavaScript
+- Vercel (hosting)
+

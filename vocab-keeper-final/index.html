@@ -8,21 +8,23 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide-static@0.378.0/font/lucide.css" />
 </head>
 <body>
   <div id="app" class="app">
     <header class="header">
       <div class="header-left">
-        <div class="logo-box"><i class="lucide lucide-book-open"></i></div>
+        <div class="logo-box"><i data-lucide="book-open"></i></div>
         <h1 class="logo-text">Vocab Keeper</h1>
       </div>
       <div class="header-right">
         <button class="icon-btn" id="themeBtn" aria-label="Toggle theme">
-          <i class="lucide lucide-moon"></i>
+          <i data-lucide="moon"></i>
+        </button>
+        <button class="icon-btn" id="settingsBtn" aria-label="Settings">
+          <i data-lucide="settings"></i>
         </button>
         <button class="icon-btn" id="logoutBtn" aria-label="Sign out">
-          <i class="lucide lucide-log-out"></i>
+          <i data-lucide="log-out"></i>
         </button>
       </div>
     </header>
@@ -31,7 +33,7 @@
       <!-- ========== ADD PAGE ========== -->
       <section class="page" data-page="add">
         <div class="page-title">
-          <div class="title-icon"><i class="lucide lucide-plus"></i></div>
+          <div class="title-icon"><i data-lucide="plus"></i></div>
           <div>
             <h2>Add Vocabulary</h2>
             <p class="page-subtitle">Add a new word to your collection</p>
@@ -44,7 +46,7 @@
             <div class="input-with-icon">
               <input type="text" id="f-word" placeholder="e.g. allocate" />
               <button type="button" class="speak-btn" data-speak="#f-word" aria-label="Speak">
-                <i class="lucide lucide-volume-2"></i>
+                <i data-lucide="volume-2"></i>
               </button>
             </div>
             <small class="hint">Enter the word you want to learn.</small>
@@ -63,6 +65,9 @@
               <button type="button" class="chip" data-value="Verb">Verb</button>
               <button type="button" class="chip" data-value="Adjective">Adjective</button>
               <button type="button" class="chip" data-value="Adverb">Adverb</button>
+              <button type="button" class="chip" data-value="Phrasal verb">Phrasal verb</button>
+              <button type="button" class="chip" data-value="Idiom">Idiom</button>
+              <button type="button" class="chip" data-value="Preposition">Preposition</button>
             </div>
             <small class="hint">เลือกชนิดของคำ</small>
           </div>
@@ -70,9 +75,9 @@
           <div class="field">
             <label>TOEIC Frequency <span class="req">*</span></label>
             <div class="star-rating" id="f-freq" data-value="0">
-              <button type="button" class="star" data-star="1"><i class="lucide lucide-star"></i></button>
-              <button type="button" class="star" data-star="2"><i class="lucide lucide-star"></i></button>
-              <button type="button" class="star" data-star="3"><i class="lucide lucide-star"></i></button>
+              <button type="button" class="star" data-star="1"><i data-lucide="star"></i></button>
+              <button type="button" class="star" data-star="2"><i data-lucide="star"></i></button>
+              <button type="button" class="star" data-star="3"><i data-lucide="star"></i></button>
             </div>
             <small class="hint">ความถี่ที่ปรากฏในข้อสอบ TOEIC (1 = น้อย, 3 = มาก)</small>
           </div>
@@ -97,10 +102,10 @@
             <label>Status <span class="req">*</span></label>
             <div class="status-toggle" id="f-status" data-value="Learning">
               <button type="button" class="status-btn active" data-value="Learning">
-                <i class="lucide lucide-book-open"></i> Learning
+                <i data-lucide="book-open"></i> Learning
               </button>
               <button type="button" class="status-btn" data-value="Mastered">
-                <i class="lucide lucide-circle-check"></i> Mastered
+                <i data-lucide="circle-check"></i> Mastered
               </button>
             </div>
             <small class="hint">สถานะการเรียนรู้ของคำนี้</small>
@@ -108,10 +113,10 @@
 
           <div class="form-actions">
             <button type="button" class="btn btn-secondary" id="clearForm">
-              <i class="lucide lucide-trash-2"></i> Clear
+              <i data-lucide="trash-2"></i> Clear
             </button>
             <button type="submit" class="btn btn-primary" id="saveWord">
-              <i class="lucide lucide-save"></i> Save Vocabulary
+              <i data-lucide="save"></i> Save Vocabulary
             </button>
           </div>
         </form>
@@ -120,7 +125,7 @@
       <!-- ========== LIBRARY PAGE ========== -->
       <section class="page" data-page="library" hidden>
         <div class="page-title">
-          <div class="title-icon"><i class="lucide lucide-book-open"></i></div>
+          <div class="title-icon"><i data-lucide="book-open"></i></div>
           <div>
             <h2>My Vocabulary</h2>
             <p class="page-subtitle">All saved words</p>
@@ -129,20 +134,21 @@
 
         <div class="search-row">
           <div class="search-input-wrap">
-            <i class="lucide lucide-search search-icon"></i>
+            <i data-lucide="search" class="search-icon"></i>
             <input type="text" id="searchInput" placeholder="Search vocabulary..." />
           </div>
           <button class="icon-btn filter-btn" aria-label="Filter">
-            <i class="lucide lucide-sliders-horizontal"></i>
+            <i data-lucide="sliders-horizontal"></i>
           </button>
         </div>
 
         <div class="filter-chips" id="filterChips">
           <button class="filter-chip active" data-filter="all">All</button>
-          <button class="filter-chip" data-filter="Learning"><i class="lucide lucide-book-open"></i> Learning</button>
-          <button class="filter-chip" data-filter="Mastered"><i class="lucide lucide-circle-check"></i> Mastered</button>
-          <button class="filter-chip" data-filter="tag:Business"><i class="lucide lucide-briefcase"></i> Business</button>
-          <button class="filter-chip" data-filter="toeic-high"><i class="lucide lucide-star"></i> TOEIC High</button>
+          <button class="filter-chip" data-filter="Learning"><i data-lucide="book-open"></i> Learning</button>
+          <button class="filter-chip" data-filter="Mastered"><i data-lucide="circle-check"></i> Mastered</button>
+          <button class="filter-chip" data-filter="toeic-high"><i data-lucide="star"></i> TOEIC High</button>
+          <span class="filter-divider" data-tag-divider hidden></span>
+          <!-- dynamic tag chips inserted here at runtime -->
         </div>
 
         <div class="loading-state" id="libraryLoading" hidden>
@@ -152,7 +158,7 @@
 
         <div class="word-list" id="wordList"></div>
         <div class="empty-state" id="emptyLibrary" hidden>
-          <i class="lucide lucide-search-x"></i>
+          <i data-lucide="search-x"></i>
           <p>ไม่พบคำศัพท์ที่ตรงกับเงื่อนไข</p>
         </div>
       </section>
@@ -165,8 +171,8 @@
             <p class="page-subtitle">Track your learning progress</p>
           </div>
           <div class="period-pill">
-            <i class="lucide lucide-calendar"></i> This Week
-            <i class="lucide lucide-chevron-down"></i>
+            <i data-lucide="calendar"></i> This Week
+            <i data-lucide="chevron-down"></i>
           </div>
         </div>
 
@@ -177,25 +183,25 @@
         <div id="dashboardContent">
           <div class="stat-grid">
             <div class="stat-card">
-              <div class="stat-icon stat-icon-blue"><i class="lucide lucide-book-open"></i></div>
+              <div class="stat-icon stat-icon-blue"><i data-lucide="book-open"></i></div>
               <div class="stat-value" id="stat-total">0</div>
               <div class="stat-label">Total Words</div>
               <div class="stat-extra blue">+<span id="stat-week">0</span> this week</div>
             </div>
             <div class="stat-card">
-              <div class="stat-icon stat-icon-indigo"><i class="lucide lucide-graduation-cap"></i></div>
+              <div class="stat-icon stat-icon-indigo"><i data-lucide="graduation-cap"></i></div>
               <div class="stat-value" id="stat-learning">0</div>
               <div class="stat-label">Learning</div>
               <div class="stat-extra blue"><span id="stat-learning-pct">0</span>% of total</div>
             </div>
             <div class="stat-card">
-              <div class="stat-icon stat-icon-green"><i class="lucide lucide-circle-check"></i></div>
+              <div class="stat-icon stat-icon-green"><i data-lucide="circle-check"></i></div>
               <div class="stat-value" id="stat-mastered">0</div>
               <div class="stat-label">Mastered</div>
               <div class="stat-extra blue"><span id="stat-mastered-pct">0</span>% of total</div>
             </div>
             <div class="stat-card">
-              <div class="stat-icon stat-icon-red"><i class="lucide lucide-frown"></i></div>
+              <div class="stat-icon stat-icon-red"><i data-lucide="frown"></i></div>
               <div class="stat-value" id="stat-not-rem">0</div>
               <div class="stat-label">Not Remembered</div>
               <div class="stat-extra blue"><span id="stat-not-rem-pct">0</span>% of total</div>
@@ -206,7 +212,7 @@
             <div class="card">
               <div class="card-header">
                 <h3>Learning Status</h3>
-                <i class="lucide lucide-info"></i>
+                <i data-lucide="info"></i>
               </div>
               <div class="donut-wrap">
                 <canvas id="donutChart" width="180" height="180"></canvas>
@@ -216,12 +222,12 @@
                 </div>
               </div>
               <div class="legend" id="donutLegend"></div>
-              <a class="card-link" data-nav="library">View all words <i class="lucide lucide-arrow-right"></i></a>
+              <a class="card-link" data-nav="library">View all words <i data-lucide="arrow-right"></i></a>
             </div>
 
             <div class="card">
               <div class="card-header">
-                <h3><i class="lucide lucide-flame" style="color:#F97316"></i> Daily Review</h3>
+                <h3><i data-lucide="flame" style="color:#F97316"></i> Daily Review</h3>
                 <span class="streak-tag"><span id="streak-days">0</span> day streak</span>
               </div>
               <div class="ring-wrap">
@@ -238,18 +244,11 @@
               <div class="weekdays" id="weekdays"></div>
             </div>
           </div>
-
-          <div class="card">
-            <div class="card-header">
-              <h3>Words by Tag</h3>
-            </div>
-            <canvas id="tagBarChart" height="180"></canvas>
-          </div>
-
+          
           <div class="card">
             <div class="card-header">
               <h3>Needs Attention</h3>
-              <a class="card-link" data-nav="review">View all <i class="lucide lucide-arrow-right"></i></a>
+              <a class="card-link" data-nav="review">View all <i data-lucide="arrow-right"></i></a>
             </div>
             <p class="muted small">Words that need more practice</p>
             <div class="attention-list" id="attentionList"></div>
@@ -265,7 +264,7 @@
             <p class="page-subtitle">Guess the meaning before revealing it</p>
           </div>
           <div class="progress-pill">
-            <i class="lucide lucide-layers"></i> <span id="rv-current">0</span> / <span id="rv-total">0</span> cards
+            <i data-lucide="layers"></i> <span id="rv-current">0</span> / <span id="rv-total">0</span> cards
           </div>
         </div>
         <div class="progress-bar"><div class="progress-fill" id="rv-progress"></div></div>
@@ -286,38 +285,38 @@
               <div class="meaning-example" id="fc-example">—</div>
             </div>
             <div class="reveal-block" id="revealBlock">
-              <div class="lock-icon"><i class="lucide lucide-lock"></i></div>
+              <div class="lock-icon"><i data-lucide="lock"></i></div>
               <p>Tap the button below<br />to reveal the meaning</p>
               <button class="btn btn-primary big" id="showMeaningBtn">
-                <i class="lucide lucide-eye"></i> Show Meaning
+                <i data-lucide="eye"></i> Show Meaning
               </button>
             </div>
           </div>
 
           <div class="nav-row">
-            <button class="nav-pill" id="prevBtn"><i class="lucide lucide-arrow-left"></i> Previous</button>
-            <button class="nav-pill" id="shuffleBtn"><i class="lucide lucide-shuffle"></i> Shuffle</button>
-            <button class="nav-pill" id="nextBtn">Next <i class="lucide lucide-arrow-right"></i></button>
+            <button class="nav-pill" id="prevBtn"><i data-lucide="arrow-left"></i> Previous</button>
+            <button class="nav-pill" id="shuffleBtn"><i data-lucide="shuffle"></i> Shuffle</button>
+            <button class="nav-pill" id="nextBtn">Next <i data-lucide="arrow-right"></i></button>
           </div>
 
           <h4 class="rate-title">How well did you remember?</h4>
           <div class="rate-grid">
             <button class="rate-btn forgot" data-rate="forgot">
-              <i class="lucide lucide-frown"></i><strong>Forgot</strong><small>1 min</small>
+              <i data-lucide="frown"></i><strong>Forgot</strong><small>1 min</small>
             </button>
             <button class="rate-btn hard" data-rate="hard">
-              <i class="lucide lucide-meh"></i><strong>Hard</strong><small>5 min</small>
+              <i data-lucide="meh"></i><strong>Hard</strong><small>5 min</small>
             </button>
             <button class="rate-btn easy" data-rate="easy">
-              <i class="lucide lucide-smile"></i><strong>Easy</strong><small>15 min</small>
+              <i data-lucide="smile"></i><strong>Easy</strong><small>15 min</small>
             </button>
             <button class="rate-btn mastered" data-rate="mastered">
-              <i class="lucide lucide-star"></i><strong>Mastered</strong><small>1 day</small>
+              <i data-lucide="star"></i><strong>Mastered</strong><small>1 day</small>
             </button>
           </div>
 
           <div class="tip">
-            <i class="lucide lucide-lightbulb"></i>
+            <i data-lucide="lightbulb"></i>
             Your review helps us optimize your learning schedule.
           </div>
         </div>
@@ -326,7 +325,7 @@
       <!-- ========== GAME PAGE ========== -->
       <section class="page" data-page="game" hidden>
         <div class="page-title">
-          <div class="title-icon"><i class="lucide lucide-gamepad-2"></i></div>
+          <div class="title-icon"><i data-lucide="gamepad-2"></i></div>
           <div>
             <h2>Meaning Match Game</h2>
             <p class="page-subtitle">Choose the correct English word</p>
@@ -335,7 +334,7 @@
 
         <div class="game-stats card row-card">
           <div class="g-stat">
-            <div class="g-stat-icon"><i class="lucide lucide-star" style="color:#FBBF24"></i></div>
+            <div class="g-stat-icon"><i data-lucide="star" style="color:#FBBF24"></i></div>
             <div>
               <div class="g-stat-label">Score</div>
               <div class="g-stat-value blue" id="g-score">0</div>
@@ -343,7 +342,7 @@
           </div>
           <div class="g-divider"></div>
           <div class="g-stat">
-            <div class="g-stat-icon"><i class="lucide lucide-bar-chart-3" style="color:#2563EB"></i></div>
+            <div class="g-stat-icon"><i data-lucide="bar-chart-3" style="color:#2563EB"></i></div>
             <div>
               <div class="g-stat-label">Question</div>
               <div class="g-stat-value blue"><span id="g-current">0</span> / <span id="g-total">20</span></div>
@@ -358,36 +357,123 @@
         </div>
 
         <div class="game-card card" id="gameContent">
-          <div class="game-top">
-            <button class="speak-circle" id="g-speak"><i class="lucide lucide-volume-2"></i></button>
-          </div>
           <div class="game-question" id="g-question">—</div>
           <p class="muted center">What does this mean?</p>
           <div class="game-options" id="g-options"></div>
           <div class="game-result" id="g-result" hidden></div>
           <button class="btn btn-primary big full" id="g-next" hidden>
-            Next <i class="lucide lucide-arrow-right"></i>
+            Next <i data-lucide="arrow-right"></i>
           </button>
+        </div>
+      </section>
+
+      <!-- ========== SETTINGS PAGE ========== -->
+      <section class="page" data-page="settings" hidden>
+        <div class="page-title">
+          <div class="title-icon"><i data-lucide="settings"></i></div>
+          <div>
+            <h2>Settings</h2>
+            <p class="page-subtitle">Manage your account and preferences</p>
+          </div>
+        </div>
+
+        <!-- Profile -->
+        <div class="card settings-section">
+          <div class="settings-section-header">
+            <i data-lucide="user-round"></i>
+            <h3>Profile</h3>
+          </div>
+          <div class="settings-row">
+            <span class="settings-label">Email</span>
+            <span class="settings-value" id="set-email">—</span>
+          </div>
+          <div class="settings-row">
+            <span class="settings-label">Member since</span>
+            <span class="settings-value" id="set-joined">—</span>
+          </div>
+        </div>
+
+        <!-- Daily goal -->
+        <form class="card settings-section" id="goalForm" onsubmit="return false;">
+          <div class="settings-section-header">
+            <i data-lucide="target"></i>
+            <h3>Daily Review Goal</h3>
+          </div>
+          <p class="settings-desc">จำนวนคำที่ต้องการทบทวนต่อวัน (ใช้แสดงบน Dashboard)</p>
+          <div class="field">
+            <label for="set-goal">Reviews per day</label>
+            <input type="number" id="set-goal" min="1" max="500" value="30" />
+          </div>
+          <div class="settings-actions">
+            <button type="submit" class="btn btn-primary" id="saveGoalBtn">
+              <i data-lucide="save"></i> Save Goal
+            </button>
+          </div>
+        </form>
+
+        <!-- Change password -->
+        <form class="card settings-section" id="passwordForm" onsubmit="return false;">
+          <div class="settings-section-header">
+            <i data-lucide="key-round"></i>
+            <h3>Change Password</h3>
+          </div>
+          <div class="field">
+            <label for="set-new-password">New Password</label>
+            <input type="password" id="set-new-password" placeholder="อย่างน้อย 6 ตัวอักษร" minlength="6" autocomplete="new-password" />
+          </div>
+          <div class="field">
+            <label for="set-confirm-password">Confirm New Password</label>
+            <input type="password" id="set-confirm-password" placeholder="ใส่รหัสผ่านอีกครั้ง" minlength="6" autocomplete="new-password" />
+          </div>
+          <div class="settings-actions">
+            <button type="submit" class="btn btn-primary" id="savePasswordBtn">
+              <i data-lucide="shield-check"></i> Update Password
+            </button>
+          </div>
+        </form>
+
+        <!-- Sign out (danger zone) -->
+        <div class="card settings-section">
+          <div class="settings-section-header">
+            <i data-lucide="log-out"></i>
+            <h3>Sign Out</h3>
+          </div>
+          <p class="settings-desc">ออกจากระบบในอุปกรณ์นี้ — ข้อมูลของคุณจะยังคงปลอดภัยใน Supabase</p>
+          <div class="settings-actions">
+            <button type="button" class="btn btn-danger" id="signOutBtn">
+              <i data-lucide="log-out"></i> Sign Out
+            </button>
+          </div>
         </div>
       </section>
     </main>
 
     <nav class="bottom-nav">
       <button class="nav-item" data-nav="add">
-        <i class="lucide lucide-circle-plus"></i><span>Add</span>
+        <i data-lucide="circle-plus"></i><span>Add</span>
       </button>
       <button class="nav-item" data-nav="library">
-        <i class="lucide lucide-book-open"></i><span>Library</span>
+        <i data-lucide="book-open"></i><span>Library</span>
       </button>
       <button class="nav-item" data-nav="dashboard">
-        <i class="lucide lucide-bar-chart-3"></i><span>Dashboard</span>
+        <i data-lucide="bar-chart-3"></i><span>Dashboard</span>
       </button>
       <button class="nav-item" data-nav="review">
-        <i class="lucide lucide-clipboard-list"></i><span>Review</span>
+        <i data-lucide="clipboard-list"></i><span>Review</span>
       </button>
       <button class="nav-item" data-nav="game">
-        <i class="lucide lucide-gamepad-2"></i><span>Game</span>
+        <i data-lucide="gamepad-2"></i><span>Game</span>
       </button>
+
+      <div class="sidebar-user" id="sidebarUser">
+        <div class="sidebar-user-avatar" id="userAvatar">?</div>
+        <div class="sidebar-user-meta">
+          <div class="sidebar-user-email" id="userEmail">—</div>
+          <div class="sidebar-user-status">
+            <span class="status-dot"></span>Signed in
+          </div>
+        </div>
+      </div>
     </nav>
   </div>
 
@@ -396,7 +482,7 @@
     <div class="modal-card">
       <div class="modal-header">
         <h3>Edit Vocabulary</h3>
-        <button class="icon-btn" id="closeEdit"><i class="lucide lucide-x"></i></button>
+        <button class="icon-btn" id="closeEdit"><i data-lucide="x"></i></button>
       </div>
       <div class="modal-body">
         <div class="field">
@@ -414,14 +500,17 @@
             <button type="button" class="chip" data-value="Verb">Verb</button>
             <button type="button" class="chip" data-value="Adjective">Adjective</button>
             <button type="button" class="chip" data-value="Adverb">Adverb</button>
+            <button type="button" class="chip" data-value="Phrasal verb">Phrasal verb</button>
+            <button type="button" class="chip" data-value="Idiom">Idiom</button>
+            <button type="button" class="chip" data-value="Preposition">Preposition</button>
           </div>
         </div>
         <div class="field">
           <label>TOEIC Frequency</label>
           <div class="star-rating" id="e-freq" data-value="0">
-            <button type="button" class="star" data-star="1"><i class="lucide lucide-star"></i></button>
-            <button type="button" class="star" data-star="2"><i class="lucide lucide-star"></i></button>
-            <button type="button" class="star" data-star="3"><i class="lucide lucide-star"></i></button>
+            <button type="button" class="star" data-star="1"><i data-lucide="star"></i></button>
+            <button type="button" class="star" data-star="2"><i data-lucide="star"></i></button>
+            <button type="button" class="star" data-star="3"><i data-lucide="star"></i></button>
           </div>
         </div>
         <div class="field">
@@ -439,10 +528,10 @@
           <label>Status</label>
           <div class="status-toggle" id="e-status" data-value="Learning">
             <button type="button" class="status-btn" data-value="Learning">
-              <i class="lucide lucide-book-open"></i> Learning
+              <i data-lucide="book-open"></i> Learning
             </button>
             <button type="button" class="status-btn" data-value="Mastered">
-              <i class="lucide lucide-circle-check"></i> Mastered
+              <i data-lucide="circle-check"></i> Mastered
             </button>
           </div>
         </div>
@@ -450,7 +539,7 @@
       <div class="modal-footer">
         <button class="btn btn-secondary" id="cancelEdit">Cancel</button>
         <button class="btn btn-primary" id="saveEdit">
-          <i class="lucide lucide-save"></i> Save Changes
+          <i data-lucide="save"></i> Save Changes
         </button>
       </div>
     </div>
@@ -459,6 +548,7 @@
   <div class="toast-wrap" id="toast"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <script src="js/config.js"></script>
   <script src="js/supabase-client.js"></script>
   <script src="js/api.js"></script>
